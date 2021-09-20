@@ -317,8 +317,8 @@ func TestOptions_CopyBufferSize(t *testing.T) {
 
 func TestOptions_EditFile(t *testing.T) {
 	opt := Options{
-		EditFile: func(src *os.File) (io.Reader, error) {
-			return strings.NewReader("Hello World"), nil
+		EditFile: func(src string) (io.ReadCloser, error) {
+			return ioutil.NopCloser(strings.NewReader("Hello World")), nil
 		},
 	}
 

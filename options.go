@@ -15,7 +15,7 @@ type Options struct {
 	OnDirExists func(src, dest string) DirExistsAction
 
 	//EditFile can specify how to edit the files
-	EditFile func(src *os.File) (io.Reader, error)
+	EditFile func(src string) (io.ReadCloser, error)
 
 	// Skip can specify which files should be skipped
 	Skip func(src string) (bool, error)
@@ -80,7 +80,11 @@ func getDefaultOptions(src, dest string) Options {
 		Skip: func(string) (bool, error) {
 			return false, nil // Don't skip
 		},
-		EditFile: func(f *os.File) (io.Reader, error) {
+		EditFile: func(src string) (io.ReadCloser, error) {
+			f, err := os.Open(src)
+			if err != nil {
+				return nil, err
+			}
 			return f, nil
 		},
 		AddPermission:  0,     // Add nothing

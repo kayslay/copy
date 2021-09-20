@@ -80,16 +80,11 @@ func fcopy(src, dest string, info os.FileInfo, opt Options) (err error) {
 		return
 	}
 
-	s, err := os.Open(src)
+	r, err := opt.EditFile(src)
 	if err != nil {
 		return
 	}
-	defer fclose(s, &err)
-
-	r, err := opt.EditFile(s)
-	if err != nil {
-		return
-	}
+	defer fclose(r, &err)
 
 	var buf []byte = nil
 	var w io.Writer = f
@@ -200,7 +195,7 @@ func lcopy(src, dest string) error {
 // fclose ANYHOW closes file,
 // with asiging error raised during Close,
 // BUT respecting the error already reported.
-func fclose(f *os.File, reported *error) {
+func fclose(f io.Closer, reported *error) {
 	if err := f.Close(); *reported == nil {
 		*reported = err
 	}
