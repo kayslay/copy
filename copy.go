@@ -86,6 +86,11 @@ func fcopy(src, dest string, info os.FileInfo, opt Options) (err error) {
 	}
 	defer fclose(s, &err)
 
+	r, err := opt.EditFile(s)
+	if err != nil {
+		return
+	}
+
 	var buf []byte = nil
 	var w io.Writer = f
 	// var r io.Reader = s
@@ -96,7 +101,8 @@ func fcopy(src, dest string, info os.FileInfo, opt Options) (err error) {
 		w = struct{ io.Writer }{f}
 		// r = struct{ io.Reader }{s}
 	}
-	if _, err = io.CopyBuffer(w, s, buf); err != nil {
+
+	if _, err = io.CopyBuffer(w, r, buf); err != nil {
 		return err
 	}
 
@@ -221,6 +227,9 @@ func assure(src, dest string, opts ...Options) Options {
 	}
 	if opts[0].Skip == nil {
 		opts[0].Skip = defopt.Skip
+	}
+	if opts[0].EditFile == nil {
+		opts[0].EditFile = defopt.EditFile
 	}
 	opts[0].intent.src = defopt.intent.src
 	opts[0].intent.dest = defopt.intent.dest

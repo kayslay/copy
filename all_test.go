@@ -2,6 +2,7 @@ package copy
 
 import (
 	"errors"
+	"io"
 	"io/ioutil"
 	"os"
 	"runtime"
@@ -312,4 +313,19 @@ func TestOptions_CopyBufferSize(t *testing.T) {
 	content, err := ioutil.ReadFile("test/data.copy/case12/README.md")
 	Expect(t, err).ToBe(nil)
 	Expect(t, string(content)).ToBe("case12 - README.md")
+}
+
+func TestOptions_EditFile(t *testing.T) {
+	opt := Options{
+		EditFile: func(src *os.File) (io.Reader, error) {
+			return strings.NewReader("Hello World"), nil
+		},
+	}
+
+	err := Copy("test/data/case12", "test/data.copy/case12", opt)
+	Expect(t, err).ToBe(nil)
+
+	content, err := ioutil.ReadFile("test/data.copy/case12/README.md")
+	Expect(t, err).ToBe(nil)
+	Expect(t, string(content)).ToBe("Hello World")
 }

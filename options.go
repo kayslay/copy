@@ -1,6 +1,9 @@
 package copy
 
-import "os"
+import (
+	"io"
+	"os"
+)
 
 // Options specifies optional actions on copying.
 type Options struct {
@@ -10,6 +13,9 @@ type Options struct {
 
 	// OnDirExists can specify what to do when there is a directory already existing in destination.
 	OnDirExists func(src, dest string) DirExistsAction
+
+	//EditFile can specify how to edit the files
+	EditFile func(src *os.File) (io.Reader, error)
 
 	// Skip can specify which files should be skipped
 	Skip func(src string) (bool, error)
@@ -73,6 +79,9 @@ func getDefaultOptions(src, dest string) Options {
 		OnDirExists: nil, // Default behavior is "Merge".
 		Skip: func(string) (bool, error) {
 			return false, nil // Don't skip
+		},
+		EditFile: func(f *os.File) (io.Reader, error) {
+			return f, nil
 		},
 		AddPermission:  0,     // Add nothing
 		Sync:           false, // Do not sync
